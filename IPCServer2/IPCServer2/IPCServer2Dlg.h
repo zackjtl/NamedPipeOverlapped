@@ -15,9 +15,9 @@ typedef struct
 {
 	OVERLAPPED oOverlap;
 	HANDLE hPipeInst;
-	TCHAR chRequest[BUFSIZE];
+	BYTE u8ReadBuff[BUFSIZE];
 	DWORD cbRead;
-	TCHAR chReply[BUFSIZE];
+	BYTE u8Reply[BUFSIZE];
 	DWORD cbToWrite;
 	DWORD dwState;
 	BOOL fPendingIO;
@@ -52,11 +52,13 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	void ShowText(CString& Text);
+	void ShowText(LPCWSTR Text);
 	UINT CreateNamedPipeConnection();
 	BOOL ConnectToNewClient(HANDLE hPipe, LPOVERLAPPED lpo);
 	VOID DisconnectAndReconnect(DWORD i);
 	UINT HandleEvents();
+
+	void DumpBuffer(BYTE* Buffer, UINT Size);
 
 public:
 	HANDLE	m_hPipe;

@@ -34,15 +34,27 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 
-	void ShowText(CString& Text);
+	void ShowText(LPCWSTR Text);
+
+	UINT WriteDataToPipe();
+	UINT HandleEvents();
+	
+	void DumpBuffer(BYTE* Buffer, UINT Size);
 
 	static const int BUFSIZE = 512;
 
 	CEdit	m_Edit;
+	HANDLE  m_hEvent;
+
+	CWinThread* m_pThread;
+	
 
 public:
 	UINT ConnectToNamedPipe();
+	UINT ListenDataIn();
 
 public:
 	afx_msg void OnBnClickedOk();
 };
+
+UINT threadHandleDataIn(LPVOID pVar);

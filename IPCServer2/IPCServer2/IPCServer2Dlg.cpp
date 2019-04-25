@@ -110,7 +110,7 @@ BOOL CIPCServer2Dlg::OnInitDialog()
 
 
 	if (CreateNamedPipeConnection() == 0) {
-		ShowText(CString(L"Create Named Pipe Connection Failed\r\n"));
+		ShowText(L"Create Named Pipe Connection Failed\r\n");
 		return TRUE;
 	}
 	m_pThread = AfxBeginThread(threadHandleEvenbts, this);
@@ -153,8 +153,8 @@ UINT CIPCServer2Dlg::CreateNamedPipeConnection()
 			PIPE_READMODE_MESSAGE |  // message-read mode 
 			PIPE_WAIT,               // blocking mode 
 			INSTANCES,               // number of instances 
-			BUFSIZE * sizeof(TCHAR),   // output buffer size 
-			BUFSIZE * sizeof(TCHAR),   // input buffer size 
+			BUFSIZE,   // output buffer size
+			BUFSIZE,   // input buffer size 
 			PIPE_TIMEOUT,            // client time-out 
 			NULL);                   // default security attributes 
 
@@ -220,6 +220,7 @@ UINT CIPCServer2Dlg::HandleEvents()
 						return 0;
 					}
 					m_Pipes[i].dwState = READING_STATE;
+					ShowText(L"Connceting To Reading State\r\n");
 					break;
 
 				// Pending read operation 
@@ -229,7 +230,14 @@ UINT CIPCServer2Dlg::HandleEvents()
 						continue;
 					}
 					m_Pipes[i].cbRead = cbRet;
-					m_Pipes[i].dwState = WRITING_STATE;
+					////m_Pipes[i].dwState = WRITING_STATE;
+
+					ShowText(L"Read Data Done\r\n");
+					DumpBuffer(m_Pipes[i].u8ReadBuff, cbRet);
+
+					////msg.Format(L"Reading To Writing State, cbRead=%d\r\n", cbRet);
+
+					ShowText(msg);
 					break;
 
 				// Pending write operation 
@@ -238,6 +246,7 @@ UINT CIPCServer2Dlg::HandleEvents()
 						DisconnectAndReconnect(i);
 						continue;
 					}
+					ShowText(L"Writing To Reading State\r\n");
 					m_Pipes[i].dwState = READING_STATE;
 					break;
 
@@ -258,26 +267,30 @@ UINT CIPCServer2Dlg::HandleEvents()
 			// and is ready to read a request from the client. 
 
 			case READING_STATE:
+				ShowText(L"Read Data..\r\n");
 				fSuccess = ReadFile(
 					m_Pipes[i].hPipeInst,
-					m_Pipes[i].chRequest,
-					BUFSIZE * sizeof(TCHAR),
+					m_Pipes[i].u8ReadBuff,
+					BUFSIZE,
 					&m_Pipes[i].cbRead,
 					&m_Pipes[i].oOverlap);
 
 				// The read operation completed successfully. 
 
-				if (fSuccess && m_Pipes[i].cbRead != 0) {
+				if (fSuccess && (m_Pipes[i].cbRead != 0)) {
 					m_Pipes[i].fPendingIO = FALSE;
 					m_Pipes[i].dwState = WRITING_STATE;
+					ShowText(L"Read Operation Completed Successfully\r\n");
 					continue;
 				}
 
 				// The read operation is still pending. 
+				ShowText(L"Read Operation Still Pending..\r\n");
 
 				dwErr = GetLastError();
 				if (!fSuccess && (dwErr == ERROR_IO_PENDING)) {
 					m_Pipes[i].fPendingIO = TRUE;
+					ShowText(L"Error IO Pending\r\n");
 					continue;
 				}
 
@@ -291,11 +304,11 @@ UINT CIPCServer2Dlg::HandleEvents()
 				// Get the reply data and write it to the client. 
 
 			case WRITING_STATE:
-				GetAnswerToRequest(&m_Pipes[i]);
-
+				////GetAnswerToRequest(&m_Pipes[i]);
+				ShowText(L"Write Data..\r\n");
 				fSuccess = WriteFile(
 					m_Pipes[i].hPipeInst,
-					m_Pipes[i].chReply,
+					m_Pipes[i].u8Reply,
 					m_Pipes[i].cbToWrite,
 					&cbRet,
 					&m_Pipes[i].oOverlap);
@@ -305,14 +318,16 @@ UINT CIPCServer2Dlg::HandleEvents()
 				if (fSuccess && cbRet == m_Pipes[i].cbToWrite) {
 					m_Pipes[i].fPendingIO = FALSE;
 					m_Pipes[i].dwState = READING_STATE;
+					ShowText(L"Write Operation Completed Successfully\r\n");
 					continue;
 				}
-
+				ShowText(L"Write Operation Still Pending..\r\n");
 				// The write operation is still pending. 
 
 				dwErr = GetLastError();
 				if (!fSuccess && (dwErr == ERROR_IO_PENDING)) {
 					m_Pipes[i].fPendingIO = TRUE;
+					ShowText(L"Error IO Pending (w)\r\n");
 					continue;
 				}
 
@@ -328,6 +343,25 @@ UINT CIPCServer2Dlg::HandleEvents()
 			}
 		}
 	}
+}
+
+void CIPCServer2Dlg::DumpBuffer(BYTE* Buffer, UINT Size)
+{
+	CString temp;
+	CString text;
+
+	text.Format(L"Buffer Data (%d bytes)\r\n", Size);
+	ShowText(text);
+
+	for (int i = 0; i < Size; ++i) {
+
+		if (i != 0 && (i % 16 == 0)) {
+			ShowText(L"\r\n");
+		}
+		temp.Format(L"%02x ", Buffer[i]);
+		ShowText(temp);
+	}
+	ShowText(L"\r\n");
 }
 
 VOID CIPCServer2Dlg::DisconnectAndReconnect(DWORD i)
@@ -390,9 +424,9 @@ BOOL CIPCServer2Dlg::ConnectToNewClient(HANDLE hPipe, LPOVERLAPPED lpo)
 
 VOID GetAnswerToRequest(LPPIPEINST pipe)
 {
-	_tprintf(TEXT("[%d] %s\n"), pipe->hPipeInst, pipe->chRequest);
-	StringCchCopy(pipe->chReply, BUFSIZE, TEXT("Default answer from server"));
-	pipe->cbToWrite = (lstrlen(pipe->chReply) + 1) * sizeof(TCHAR);
+	////_tprintf(TEXT("[%d] %s\n"), pipe->hPipeInst, pipe->chRequest);
+	////StringCchCopy(pipe->u8Reply, BUFSIZE, TEXT("Default answer from server"));
+	////pipe->cbToWrite = (lstrlen(pipe->u8Reply) + 1) * sizeof(TCHAR);
 }
 
 UINT threadHandleEvenbts(LPVOID pVar)
@@ -410,8 +444,8 @@ UINT threadWaitForConnection(LPVOID pVar)
 		::AfxMessageBox(_T("Connect Named Pipe fail."));
 		return false;
 	}
-	pDlg->ShowText(CString(L"Congraduation!\r\n"));
-	pDlg->ShowText(CString("Connected.\r\n"));
+	pDlg->ShowText(L"Congraduation!\r\n");
+	pDlg->ShowText(L"Connected.\r\n");
 
 	unsigned char buffer[1024] = { 0 };
 	DWORD ReadNum;
@@ -484,7 +518,7 @@ CIPCServer2Dlg::~CIPCServer2Dlg()
 	}
 }
 
-void CIPCServer2Dlg::ShowText(CString& Text)
+void CIPCServer2Dlg::ShowText(LPCWSTR Text)
 {
 	m_Edit.SetSel(-1, -1);
 	m_Edit.ReplaceSel(Text);
@@ -500,9 +534,28 @@ HCURSOR CIPCServer2Dlg::OnQueryDragIcon()
 void CIPCServer2Dlg::OnBnClickedOk()
 {
 	// TODO: 在此加入控制項告知處理常式程式碼
-	m_Text = L"Connected.\r\n";
-	UpdateData(false);
+	bool fSuccess;
+	DWORD cbRet;
 
+	byte buffer[32];
 
+	memset(buffer, 0x77, 32);
+
+	ShowText(L"Write Data..\r\n");
+	fSuccess = WriteFile(
+		m_Pipes[0].hPipeInst,
+		buffer,
+		32,
+		&cbRet,
+		&m_Pipes[0].oOverlap);
+
+	// The write operation completed successfully. 
+
+	if (fSuccess && cbRet == 32) {
+		ShowText(L"Write Operation Completed Successfully\r\n");
+	}
+	else {
+		ShowText(L"Write Data Failed\r\n");
+	}
 	////CDialogEx::OnOK();
 }

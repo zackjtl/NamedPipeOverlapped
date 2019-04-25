@@ -101,15 +101,15 @@ BOOL CIPCClient1Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 設定小圖示
 
 	// TODO: 在此加入額外的初始設定
+	ConnectToNamedPipe();
 
-
+	m_pThread = AfxBeginThread(threadHandleDataIn, this);
 
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
 
 UINT CIPCClient1Dlg::ConnectToNamedPipe()
 {
-	HANDLE hPipe;
 	LPTSTR lpvMessage = TEXT("Default message from client.");
 	TCHAR  chBuf[BUFSIZE];
 	BOOL   fSuccess = FALSE;
@@ -121,18 +121,18 @@ UINT CIPCClient1Dlg::ConnectToNamedPipe()
 	// Try to open a named pipe; wait for it, if necessary. 
 
 	while (1) {
-		hPipe = CreateFile(
+		m_hPipe = CreateFile(
 			lpszPipename,   // pipe name 
 			GENERIC_READ |  // read and write access 
 			GENERIC_WRITE,
 			0,              // no sharing 
 			NULL,           // default security attributes
 			OPEN_EXISTING,  // opens existing pipe 
-			0,              // default attributes 
+			FILE_FLAG_OVERLAPPED,              // default attributes 
 			NULL);          // no template file 
 
 	  // Break if the pipe handle is valid. 
-		if (hPipe != INVALID_HANDLE_VALUE)
+		if (m_hPipe != INVALID_HANDLE_VALUE)
 			break;
 
 		// Exit if an error other than ERROR_PIPE_BUSY occurs. 
@@ -150,17 +150,90 @@ UINT CIPCClient1Dlg::ConnectToNamedPipe()
 		}
 	}
 	// The pipe connected; change to message-read mode. 
-
+	/*
 	dwMode = PIPE_READMODE_MESSAGE;
 	fSuccess = SetNamedPipeHandleState(
-		hPipe,    // pipe handle 
+		m_hPipe,    // pipe handle 
 		&dwMode,  // new pipe mode 
 		NULL,     // don't set maximum bytes 
 		NULL);    // don't set maximum time 
 	if (!fSuccess) {
 		msg.Format(L"SetNamedPipeHandleState failed. GLE=%d\n", GetLastError());
 		return -1;
+	}*/
+}
+
+UINT threadHandleDataIn(LPVOID pVar)
+{
+	CIPCClient1Dlg* pDlg = (CIPCClient1Dlg*)pVar;
+	return pDlg->ListenDataIn();
+}
+
+UINT CIPCClient1Dlg::ListenDataIn()
+{
+	DWORD i, dwWait, cbRead, dwErr;
+	BOOL fSuccess;
+	CString msg;
+
+	byte buffer[256];
+
+	while (1) {
+		fSuccess = ReadFile(
+			m_hPipe,    // pipe handle 
+			buffer,    // buffer to receive reply 
+			256,  // size of buffer 
+			&cbRead,  // number of bytes read 
+			NULL);
+
+		if (cbRead > 0) {
+			ShowText(L"Got data\r\n");
+			DumpBuffer(buffer, cbRead);
+		}
 	}
+
+	return 1;
+}
+
+UINT CIPCClient1Dlg::WriteDataToPipe()
+{
+	bool fSuccess;
+	DWORD cbWritten;
+
+	byte buffer[256];
+
+	memset(buffer, 0x5a, sizeof(buffer));
+
+	fSuccess = WriteFile(
+		m_hPipe,                  // pipe handle 
+		buffer,             // message 
+		sizeof(buffer),              // message length 
+		&cbWritten,             // bytes written 
+		NULL);                  // not overlapped 
+
+	if (!fSuccess)
+	{
+		_tprintf(TEXT("WriteFile to pipe failed. GLE=%d\n"), GetLastError());
+		return -1;
+	}
+}
+
+void CIPCClient1Dlg::DumpBuffer(BYTE* Buffer, UINT Size)
+{
+	CString temp;
+	CString text;
+
+	text.Format(L"Buffer Data (%d bytes)\r\n", Size);
+	ShowText(text);
+
+	for (int i = 0; i < Size; ++i) {
+
+		if (i != 0 && (i % 16 == 0)) {
+			ShowText(L"\r\n");
+		}
+		temp.Format(L"%02x ", Buffer[i]);
+		ShowText(temp);
+	}
+	ShowText(L"\r\n");
 }
 
 void CIPCClient1Dlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -216,17 +289,11 @@ void CIPCClient1Dlg::OnBnClickedOk()
 {
 	// TODO: 在此加入控制項告知處理常式程式碼
 	////CString CStrMessage = _T("Test message.");                // 測試傳送的字串
-	unsigned char buffer[] = { 0x55, 0x66, 0x77, 0x88 };
-
-	DWORD WriteNum;
-	if (!WriteFile(m_hPipe, buffer, sizeof(buffer), &WriteNum, NULL))
-	{
-		::AfxMessageBox(_T("Write Message to Pipe Fail."));
-	}
+	WriteDataToPipe();
 	////CDialogEx::OnOK();
 }
 
-void CIPCClient1Dlg::ShowText(CString& Text)
+void CIPCClient1Dlg::ShowText(LPCWSTR Text)
 {
 	m_Edit.SetSel(-1, -1);
 	m_Edit.ReplaceSel(Text);
