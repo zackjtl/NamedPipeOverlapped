@@ -1,6 +1,8 @@
 ﻿
 // IPCServer2Dlg.h: 標頭檔
 //
+#include "NamedPipeServer.h"
+#include "NamedPipeThread.h"
 
 #pragma once
 
@@ -68,13 +70,19 @@ public:
 
 	CString m_Text;
 	CWinThread*	m_pThread;
+	CWinThread* m_ThreadConnectNP;
 
 	PIPEINST m_Pipes[INSTANCES];
 	HANDLE m_hEvents[INSTANCES];
 
+	CNamedPipeServer	m_NPServer;
+	CNamedPipeThread*	m_NPThread;
+
 public:
 	afx_msg void OnBnClickedOk();
 };
+
+UINT threadConnectNamedPipe(LPVOID pVar);
 
 VOID GetAnswerToRequest(LPPIPEINST pipe);
 UINT threadHandleEvenbts(LPVOID pVar);

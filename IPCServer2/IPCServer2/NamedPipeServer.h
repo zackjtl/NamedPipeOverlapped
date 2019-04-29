@@ -18,7 +18,7 @@ public:
 
 protected:
 	BOOL ConnectToNewClient(HANDLE Pipe, LPOVERLAPPED LPOV);
-	BOOL WaitEventAndGetResult();
+	BOOL WaitEventAndGetResult(DWORD* Ret1);
 	BOOL Reconnect();
 protected:
 	UINT			m_BuffSize;
@@ -27,6 +27,9 @@ protected:
 	OVERLAPPED		m_Overlapped;
 	HANDLE			m_hPipe;
 	CError			m_Error;
+
+	BOOL			m_Connected;
+
 
 	static const int PIPE_TIMEOUT = 5000;
 };

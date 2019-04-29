@@ -39,7 +39,10 @@
     <ClInclude Include="Bulk.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="CNamedPipeServer.h">
+    <ClInclude Include="NamedPipeServer.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="NamedPipeThread.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,7 +59,10 @@
     <ClCompile Include="TypeConv.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="CNamedPipeServer.cpp">
+    <ClCompile Include="NamedPipeServer.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="NamedPipeThread.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>

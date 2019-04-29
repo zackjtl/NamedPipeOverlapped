@@ -1003,7 +1003,7 @@ public:
 	}
 
 public:
-	class_TimeStamp() {}
+	 class_TimeStamp() {}
 
   struct tm get_tm_struct() {
     //struct tm tm;

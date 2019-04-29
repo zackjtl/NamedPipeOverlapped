@@ -106,20 +106,54 @@ BOOL CIPCServer2Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 設定小圖示
 
 	// TODO: 在此加入額外的初始設定
+	
 	m_Connected = false;
 
+	m_NPServer.Create(L"\\\\.\\pipe\\mynamedpipe", 16384);
+	
+	////if (!m_NPServer.Connect()) {
+		////ShowText(L"Create Named Pipe Connection Failed\r\n");
+		////return TRUE;
+	////}
+	////m_ThreadConnectNP = AfxBeginThread(threadConnectNamedPipe, this);
+	m_NPThread = new CNamedPipeThread(&m_NPServer);	
+	m_NPThread->m_bAutoDelete = false;
+	m_NPThread->Function = 0;
+	m_NPThread->CreateThread();
 
+	
+
+	////m_NPThread = (CNamedPipeThread*)AfxBeginThread(RUNTIME_CLASS(CNamedPipeThread));
+	/*
 	if (CreateNamedPipeConnection() == 0) {
 		ShowText(L"Create Named Pipe Connection Failed\r\n");
 		return TRUE;
 	}
 	m_pThread = AfxBeginThread(threadHandleEvenbts, this);
-
+	*/
 	m_Connected = true;
 
 
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
 }
+
+UINT threadConnectNamedPipe(LPVOID pVar)
+{	
+	CIPCServer2Dlg* pDlg = (CIPCServer2Dlg*)pVar;	
+	pDlg->m_Connected = false;
+
+	UINT result = pDlg->m_NPServer.Connect();	
+
+	if (result) {
+		pDlg->ShowText(L"Connect Successfully\r\n");
+		pDlg->m_Connected = true;
+	}
+	else {
+		pDlg->ShowText(L"Connect Failed\r\n");
+	}
+	return result;
+}
+
 
 UINT CIPCServer2Dlg::CreateNamedPipeConnection()
 {
@@ -534,6 +568,17 @@ HCURSOR CIPCServer2Dlg::OnQueryDragIcon()
 void CIPCServer2Dlg::OnBnClickedOk()
 {
 	// TODO: 在此加入控制項告知處理常式程式碼
+	
+	m_NPThread = new CNamedPipeThread(&m_NPServer);
+
+	byte buffer[32];
+	memset(buffer, 0x77, 32);
+	m_NPThread->Function = 1;
+	m_NPThread->Data = buffer;
+	m_NPThread->Length = 32;
+	m_NPThread->ResumeThread();
+
+	/*
 	bool fSuccess;
 	DWORD cbRet;
 
@@ -556,6 +601,25 @@ void CIPCServer2Dlg::OnBnClickedOk()
 	}
 	else {
 		ShowText(L"Write Data Failed\r\n");
-	}
+	}*/
+	
+	
 	////CDialogEx::OnOK();
+}
+
+UINT threadWriteData(LPVOID pVar)
+{
+	CIPCServer2Dlg* pDlg = (CIPCServer2Dlg*)pVar;
+	pDlg->m_Connected = false;
+
+	UINT result = pDlg->m_NPServer.Connect();
+
+	if (result) {
+		pDlg->ShowText(L"Connect Successfully\r\n");
+		pDlg->m_Connected = true;
+	}
+	else {
+		pDlg->ShowText(L"Connect Failed\r\n");
+	}
+	return result;
 }

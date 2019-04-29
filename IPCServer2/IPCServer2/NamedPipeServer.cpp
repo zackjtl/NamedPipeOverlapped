@@ -1,10 +1,11 @@
 #include "stdafx.h"
-#include "CNamedPipeServer.h"
+#include "NamedPipeServer.h"
 #include "Error.h"
 #include "TypeConv.h"
 //---------------------------------------------------------------------------
 CNamedPipeServer::CNamedPipeServer()
 {
+	m_Connected = false;
 }
 //---------------------------------------------------------------------------
 CNamedPipeServer::~CNamedPipeServer()
@@ -15,6 +16,7 @@ BOOL CNamedPipeServer::Create(const wstring& Name, UINT BufferSize)
 {
 	m_Name = Name;
 	m_BuffSize = BufferSize;
+	m_Connected = false;
 
 	m_hEvent = CreateEvent(
 		NULL,    // default security attribute 
@@ -30,7 +32,7 @@ BOOL CNamedPipeServer::Create(const wstring& Name, UINT BufferSize)
 	m_Overlapped.hEvent = m_hEvent;
 
 	m_hPipe = CreateNamedPipe(
-		Name.c_str,            // pipe name 
+		Name.c_str(),            // pipe name 
 		PIPE_ACCESS_DUPLEX |     // read/write access 
 		FILE_FLAG_OVERLAPPED,    // overlapped mode 
 		PIPE_TYPE_MESSAGE |      // message-type pipe 
@@ -52,17 +54,19 @@ BOOL CNamedPipeServer::Create(const wstring& Name, UINT BufferSize)
 //---------------------------------------------------------------------------
 BOOL CNamedPipeServer::Connect()
 {
+	DWORD cbRet;
 	// Call the subroutine to connect to the new client
 	if (!ConnectToNewClient(m_hPipe, &m_Overlapped)) {
 		return FALSE;
 	}
-	if (!WaitEventAndGetResult()) {
+	if (!WaitEventAndGetResult(&cbRet)) {
 		return FALSE;
 	}
+	m_Connected = TRUE;
 	return TRUE;
 }
 //---------------------------------------------------------------------------
-BOOL CNamedPipeServer::ConnectToNewClient(HANDLE Pipe, LPOVERLAPPED LPOV)
+BOOL CNamedPipeServer::ConnectToNewClient(HANDLE Pipe, LPOVERLAPPED LPOV)	
 {
 	BOOL connected;
 	BOOL ioPending = FALSE;
@@ -97,10 +101,9 @@ BOOL CNamedPipeServer::ConnectToNewClient(HANDLE Pipe, LPOVERLAPPED LPOV)
 	return ioPending;
 }
 //---------------------------------------------------------------------------
-BOOL CNamedPipeServer::WaitEventAndGetResult()
+BOOL CNamedPipeServer::WaitEventAndGetResult(DWORD* Ret)
 {
 	DWORD dwWait;
-	DWORD cbRet;
 	BOOL success;
 
 	dwWait = WaitForSingleObject(m_hEvent, INFINITE);
@@ -113,15 +116,10 @@ BOOL CNamedPipeServer::WaitEventAndGetResult()
 	success = GetOverlappedResult(
 		m_hPipe, // handle to pipe 
 		&m_Overlapped, // OVERLAPPED structure 
-		&cbRet,            // bytes transferred 
+		Ret,            // bytes transferred 
 		FALSE);            // do not wait 
 
-	if (!success) {
-		m_Error.SetText(L"Error GetOverlappedResult with error 0x" + IntToHexWStr(GetLastError(), 8));
-		m_Error.SetCode(GetLastError());
-		return FALSE;
-	}
-	return TRUE;
+	return success;
 }
 //---------------------------------------------------------------------------
 BOOL CNamedPipeServer::Reconnect()
@@ -134,7 +132,9 @@ BOOL CNamedPipeServer::Reconnect()
 	if (!ConnectToNewClient(m_hPipe, &m_Overlapped)) {
 		return FALSE;
 	}
-	if (!WaitEventAndGetResult()) {
+	DWORD ret;
+
+	if (!WaitEventAndGetResult(&ret)) {
 		return FALSE;
 	}
 }
@@ -158,7 +158,7 @@ BOOL CNamedPipeServer::WriteData(BYTE* Buffer, UINT Length)
 	
 	dwErr = GetLastError();
 	if (!success && (dwErr == ERROR_IO_PENDING)) {
-		success = WaitEventAndGetResult();
+		success = WaitEventAndGetResult(&cbRet);
 
 		if (!success || (cbRet != Length)) {
 			Reconnect();
@@ -170,6 +170,29 @@ BOOL CNamedPipeServer::WriteData(BYTE* Buffer, UINT Length)
 //---------------------------------------------------------------------------
 BOOL CNamedPipeServer::ReadData(BYTE* Buffer, UINT Length)
 {
+	BOOL success;
+	DWORD cbRead, dwErr;
+
+	success = ReadFile(
+		m_hPipe,
+		Buffer,
+		Length,
+		&cbRead,
+		&m_Overlapped);
+
+	if (success && (cbRead != 0)) {
+		return TRUE;
+	}
+
+	dwErr = GetLastError();
+	if (!success && (dwErr == ERROR_IO_PENDING)) {
+		success = WaitEventAndGetResult(&cbRead);
+
+		if (!success || (cbRead == 0)) {
+			Reconnect();
+			return  FALSE;
+		}
+	}
 	return TRUE;
 }
 //---------------------------------------------------------------------------
