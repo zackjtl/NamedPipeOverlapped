@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "CNamedPipe.h"
+#include "CNamedPipeServer.h"
 #include "Error.h"
 #include "TypeConv.h"
 //---------------------------------------------------------------------------
@@ -137,5 +137,39 @@ BOOL CNamedPipeServer::Reconnect()
 	if (!WaitEventAndGetResult()) {
 		return FALSE;
 	}
+}
+//---------------------------------------------------------------------------
+BOOL CNamedPipeServer::WriteData(BYTE* Buffer, UINT Length)
+{
+	////ShowText(L"Write Data..\r\n");
+	BOOL success;
+	DWORD cbRet, dwErr;
+
+	success = WriteFile(
+	m_hPipe,
+	Buffer,
+	Length,
+	&cbRet,
+	&m_Overlapped);
+
+	if (success && (Length == cbRet)) {
+		return TRUE;
+	}
+	
+	dwErr = GetLastError();
+	if (!success && (dwErr == ERROR_IO_PENDING)) {
+		success = WaitEventAndGetResult();
+
+		if (!success || (cbRet != Length)) {
+			Reconnect();
+			return  FALSE;
+		}
+	}
+	return TRUE;
+}
+//---------------------------------------------------------------------------
+BOOL CNamedPipeServer::ReadData(BYTE* Buffer, UINT Length)
+{
+	return TRUE;
 }
 //---------------------------------------------------------------------------

@@ -13,6 +13,8 @@ public:
 	BOOL Create(const wstring& Name, UINT BufferSize);
 
 	BOOL Connect();
+	BOOL WriteData(BYTE* Buffer, UINT Length);
+	BOOL ReadData(BYTE* Buffer, UINT Length);
 
 protected:
 	BOOL ConnectToNewClient(HANDLE Pipe, LPOVERLAPPED LPOV);

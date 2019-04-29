@@ -184,7 +184,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Bulk.h" />
-    <ClInclude Include="CNamedPipe.h" />
+    <ClInclude Include="CNamedPipeServer.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="IPCServer2.h" />
     <ClInclude Include="IPCServer2Dlg.h" />
@@ -194,7 +194,7 @@
     <ClInclude Include="TypeConv.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CNamedPipe.cpp" />
+    <ClCompile Include="CNamedPipeServer.cpp" />
     <ClCompile Include="IPCServer2.cpp" />
     <ClCompile Include="IPCServer2Dlg.cpp" />
     <ClCompile Include="TypeConv.cpp" />
