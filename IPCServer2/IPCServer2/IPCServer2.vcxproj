@@ -76,6 +76,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>Error;Common;.;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -183,24 +184,33 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Bulk.h" />
-    <ClInclude Include="UsrMsg.h" />
+    <ClInclude Include="Common\Bulk.h" />
+    <ClInclude Include="Common\Error.h" />
+    <ClInclude Include="Common\IniFile.h" />
+    <ClInclude Include="Common\IoFile.h" />
+    <ClInclude Include="Common\randomc.h" />
+    <ClInclude Include="Common\TypeConv.h" />
+    <ClInclude Include="Common\TypeIterator.h" />
+    <ClInclude Include="Error\ErrorType.h" />
+    <ClInclude Include="Error\FileError.h" />
     <ClInclude Include="NamedPipeServer.h" />
-    <ClInclude Include="Error.h" />
     <ClInclude Include="IPCServer2.h" />
     <ClInclude Include="IPCServer2Dlg.h" />
     <ClInclude Include="NamedPipeThread.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TypeConv.h" />
+    <ClInclude Include="UsrMsg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Common\IniFile.cpp" />
+    <ClCompile Include="Common\IoFile.cpp" />
+    <ClCompile Include="Common\mersenne.cpp" />
+    <ClCompile Include="Common\TypeConv.cpp" />
     <ClCompile Include="NamedPipeThread.cpp" />
     <ClCompile Include="NamedPipeServer.cpp" />
     <ClCompile Include="IPCServer2.cpp" />
     <ClCompile Include="IPCServer2Dlg.cpp" />
-    <ClCompile Include="TypeConv.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

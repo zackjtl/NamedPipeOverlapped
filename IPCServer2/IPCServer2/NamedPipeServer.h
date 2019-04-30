@@ -13,13 +13,17 @@ public:
 	BOOL Create(const wstring& Name, UINT BufferSize);
 
 	BOOL Connect();
-	BOOL WriteData(BYTE* Buffer, UINT Length);
-	BOOL ReadData(BYTE* Buffer, UINT Length);
+	BOOL WriteData(BYTE* Buffer, DWORD Length);
+	BOOL ReadData(BYTE* Buffer, DWORD Length, DWORD* BytesRead);
+
+	BOOL IsConnected();
+	BOOL DisConnect();
+	BOOL Reconnect();
 
 protected:
 	BOOL ConnectToNewClient(HANDLE Pipe, LPOVERLAPPED LPOV);
 	BOOL WaitEventAndGetResult(DWORD* Ret1);
-	BOOL Reconnect();
+
 protected:
 	UINT			m_BuffSize;
 	wstring			m_Name;

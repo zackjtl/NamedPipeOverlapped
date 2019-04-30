@@ -30,15 +30,6 @@
     <ClInclude Include="Resource.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Error.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="TypeConv.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="Bulk.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
     <ClInclude Include="NamedPipeServer.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
@@ -46,6 +37,33 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="UsrMsg.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bulk.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IniFile.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IoFile.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\randomc.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TypeConv.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Error\FileError.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Error\ErrorType.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Error.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TypeIterator.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,13 +77,22 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="TypeConv.cpp">
-      <Filter>來源檔案</Filter>
-    </ClCompile>
     <ClCompile Include="NamedPipeServer.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="NamedPipeThread.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\IniFile.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\IoFile.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\mersenne.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TypeConv.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>

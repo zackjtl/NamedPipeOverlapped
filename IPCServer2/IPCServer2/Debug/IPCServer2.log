@@ -1,1 +1,4 @@
-﻿
+﻿  IPCServer2Dlg.cpp
+C:\Projects\NamedPipeOverlapped\IPCServer2\IPCServer2\Common\TypeConv.h(959): warning C4244: '引數': 將 'DWORD' 轉換為 'WORD'，由於類型不同，可能導致資料遺失
+C:\Projects\NamedPipeOverlapped\IPCServer2\IPCServer2\IPCServer2Dlg.cpp(156): warning C4018: '<': signed/unsigned 不相符
+  IPCServer2.vcxproj -> C:\Projects\NamedPipeOverlapped\IPCServer2\Debug\IPCServer2.exe

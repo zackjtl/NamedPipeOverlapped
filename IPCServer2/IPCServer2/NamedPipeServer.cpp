@@ -12,6 +12,11 @@ CNamedPipeServer::~CNamedPipeServer()
 {
 }
 //---------------------------------------------------------------------------
+BOOL CNamedPipeServer::IsConnected()
+{
+	return m_Connected;
+}
+//---------------------------------------------------------------------------
 BOOL CNamedPipeServer::Create(const wstring& Name, UINT BufferSize)
 {
 	m_Name = Name;
@@ -122,9 +127,15 @@ BOOL CNamedPipeServer::WaitEventAndGetResult(DWORD* Ret)
 	return success;
 }
 //---------------------------------------------------------------------------
+BOOL CNamedPipeServer::DisConnect()
+{
+	return DisconnectNamedPipe(m_hPipe);
+}
+//---------------------------------------------------------------------------
 BOOL CNamedPipeServer::Reconnect()
 {
-	if (!DisconnectNamedPipe(m_hPipe)) {
+	m_Connected = FALSE;
+	if (!DisConnect()) {
 		m_Error.SetText(L"Error DisconnectNamedPipe with error 0x" + IntToHexWStr(GetLastError(), 8));
 		m_Error.SetCode(GetLastError());
 	}
@@ -137,9 +148,11 @@ BOOL CNamedPipeServer::Reconnect()
 	if (!WaitEventAndGetResult(&ret)) {
 		return FALSE;
 	}
+	m_Connected = TRUE;
+	return TRUE;
 }
 //---------------------------------------------------------------------------
-BOOL CNamedPipeServer::WriteData(BYTE* Buffer, UINT Length)
+BOOL CNamedPipeServer::WriteData(BYTE* Buffer, DWORD Length)
 {
 	////ShowText(L"Write Data..\r\n");
 	BOOL success;
@@ -168,27 +181,27 @@ BOOL CNamedPipeServer::WriteData(BYTE* Buffer, UINT Length)
 	return TRUE;
 }
 //---------------------------------------------------------------------------
-BOOL CNamedPipeServer::ReadData(BYTE* Buffer, UINT Length)
+BOOL CNamedPipeServer::ReadData(BYTE* Buffer, DWORD Length, DWORD* BytesRead)
 {
 	BOOL success;
-	DWORD cbRead, dwErr;
+	DWORD dwErr;
 
 	success = ReadFile(
 		m_hPipe,
 		Buffer,
 		Length,
-		&cbRead,
+		BytesRead,
 		&m_Overlapped);
 
-	if (success && (cbRead != 0)) {
+	if (success && (BytesRead != 0)) {
 		return TRUE;
 	}
 
 	dwErr = GetLastError();
 	if (!success && (dwErr == ERROR_IO_PENDING)) {
-		success = WaitEventAndGetResult(&cbRead);
+		success = WaitEventAndGetResult(BytesRead);
 
-		if (!success || (cbRead == 0)) {
+		if (!success || (BytesRead == 0)) {
 			Reconnect();
 			return  FALSE;
 		}

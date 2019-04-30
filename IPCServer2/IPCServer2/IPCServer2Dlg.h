@@ -50,6 +50,7 @@ protected:
 
 	// 產生的訊息對應函式
 	virtual BOOL OnInitDialog();
+	virtual void OnCancel();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();	
@@ -70,11 +71,10 @@ public:
 	HANDLE	m_hPipe;
 	bool	m_Connected;
 
-	CEdit	m_Edit;
+	CEdit	m_LogEdit;
+	CEdit   m_ClientEdit;
 
 	CString m_Text;
-	CWinThread*	m_pThread;
-	CWinThread* m_ThreadConnectNP;
 
 	PIPEINST m_Pipes[INSTANCES];
 	HANDLE m_hEvents[INSTANCES];
@@ -85,7 +85,7 @@ public:
 
 public:
 	afx_msg void OnBnClickedOk();
-	
+	afx_msg void OnBnClickedBtnbrowse();
 };
 
 UINT threadConnectNamedPipe(LPVOID pVar);

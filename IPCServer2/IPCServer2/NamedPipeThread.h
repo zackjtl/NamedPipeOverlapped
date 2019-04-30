@@ -1,14 +1,13 @@
 ﻿#pragma once
-
+//---------------------------------------------------------------------------
 #define WM_NPCONNECT	WM_USER + 0X0001
-
+enum eNPThreadFunc{NamedPipeConnect, NamedPipeWrite, NamedPipeRead};
+typedef void(__stdcall* fpLog)(LPCWSTR Text);
+//---------------------------------------------------------------------------
 #include "NamedPipeServer.h"
-#include "UsrMsg.h"
-
+//---------------------------------------------------------------------------
 // CNamedPipeThread
-
-typedef void (__stdcall *fpLog)(LPCWSTR Text);
-
+//---------------------------------------------------------------------------
 class CNamedPipeThread : public CWinThread
 {
 	DECLARE_DYNCREATE(CNamedPipeThread)
@@ -28,7 +27,8 @@ public:
 
 	int Function;
 	byte* Data;
-	int Length;
+	UINT Length;
+	UINT BytesRead;
 
 	int Result;
 
@@ -41,5 +41,5 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 };
-
+//---------------------------------------------------------------------------
 

@@ -1,1 +1,16 @@
-﻿
+﻿  stdafx.cpp
+  IPCClient1.cpp
+  IPCClient1Dlg.cpp
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(114): warning C4101: 'chBuf': 未參考的區域變數
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(116): warning C4101: 'dwMode': 未參考的區域變數
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(116): warning C4101: 'cbRead': 未參考的區域變數
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(116): warning C4101: 'cbToWrite': 未參考的區域變數
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(116): warning C4101: 'cbWritten': 未參考的區域變數
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(174): warning C4101: 'dwErr': 未參考的區域變數
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(174): warning C4101: 'i': 未參考的區域變數
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(174): warning C4101: 'dwWait': 未參考的區域變數
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(228): warning C4018: '<': signed/unsigned 不相符
+  正在產生程式碼...
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(164): warning C4715: 'CIPCClient1Dlg::ConnectToNamedPipe': 不是所有控制路徑都傳回值
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(218): warning C4715: 'CIPCClient1Dlg::WriteDataToPipe': 不是所有控制路徑都傳回值
+  IPCClient1.vcxproj -> C:\Projects\NamedPipeOverlapped\IPCClient1\Debug\IPClient1.exe
