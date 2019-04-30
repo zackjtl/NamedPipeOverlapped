@@ -6,6 +6,7 @@
 #include "IPCServer2.h"
 #include "IPCServer2Dlg.h"
 #include "afxdialogex.h"
+#include "UsrMsg.h"
 #include <tchar.h>
 #include <strsafe.h>
 
@@ -64,11 +65,12 @@ void CIPCServer2Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT1, m_Edit);
 }
 
-BEGIN_MESSAGE_MAP(CIPCServer2Dlg, CDialogEx)
+BEGIN_MESSAGE_MAP(CIPCServer2Dlg, CDialogEx)	
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDOK, &CIPCServer2Dlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDOK, OnBnClickedOk)
+	ON_MESSAGE(WM_THREAD_DONE, OnThreadDone)
 END_MESSAGE_MAP()
 
 
@@ -116,11 +118,11 @@ BOOL CIPCServer2Dlg::OnInitDialog()
 		////return TRUE;
 	////}
 	////m_ThreadConnectNP = AfxBeginThread(threadConnectNamedPipe, this);
-	m_NPThread = new CNamedPipeThread(&m_NPServer);	
-	m_NPThread->m_bAutoDelete = false;
+	m_NPThread = new CNamedPipeThread(m_hWnd, &m_NPServer);	
+	////m_NPThread->m_bAutoDelete = false;
 	m_NPThread->Function = 0;
+	////m_NPThread->LogCallBack = ShowText;
 	m_NPThread->CreateThread();
-
 	
 
 	////m_NPThread = (CNamedPipeThread*)AfxBeginThread(RUNTIME_CLASS(CNamedPipeThread));
@@ -135,6 +137,31 @@ BOOL CIPCServer2Dlg::OnInitDialog()
 
 
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
+}
+
+LRESULT CIPCServer2Dlg::OnThreadDone(WPARAM wParam, LPARAM lParam)
+{
+	int function = wParam;
+	int result = lParam;
+
+	if (function == 0) {
+		if (result) {
+			ShowText(L"Connect successfully.\r\n");
+		}
+		else {
+			ShowText(L"Connection failed.\r\n");
+		}
+	}
+	else if (function == 1) {
+		if (result) {
+			ShowText(L"Write data successfully.\r\n");
+		}
+		else {
+			ShowText(L"Write data failed.\r\n");
+		}
+	}
+
+	return 0;
 }
 
 UINT threadConnectNamedPipe(LPVOID pVar)
@@ -552,7 +579,7 @@ CIPCServer2Dlg::~CIPCServer2Dlg()
 	}
 }
 
-void CIPCServer2Dlg::ShowText(LPCWSTR Text)
+void __stdcall CIPCServer2Dlg::ShowText(LPCWSTR Text)
 {
 	m_Edit.SetSel(-1, -1);
 	m_Edit.ReplaceSel(Text);
@@ -569,14 +596,15 @@ void CIPCServer2Dlg::OnBnClickedOk()
 {
 	// TODO: 在此加入控制項告知處理常式程式碼
 	
-	m_NPThread = new CNamedPipeThread(&m_NPServer);
+	////m_NPThread->Delete();
+	m_NPThread = new CNamedPipeThread(m_hWnd, &m_NPServer);
 
 	byte buffer[32];
 	memset(buffer, 0x77, 32);
 	m_NPThread->Function = 1;
 	m_NPThread->Data = buffer;
 	m_NPThread->Length = 32;
-	m_NPThread->ResumeThread();
+	m_NPThread->CreateThread();
 
 	/*
 	bool fSuccess;

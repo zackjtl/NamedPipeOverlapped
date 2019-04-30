@@ -13,6 +13,8 @@
 #define PIPE_TIMEOUT 5000
 #define BUFSIZE 4096
 
+#define IDT_TIMER1 1003 
+
 typedef struct
 {
 	OVERLAPPED oOverlap;
@@ -50,11 +52,13 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg HCURSOR OnQueryDragIcon();	
+	afx_msg LRESULT OnThreadDone(WPARAM wParam, LPARAM lParam);
+
 	DECLARE_MESSAGE_MAP()
 
 public:
-	void ShowText(LPCWSTR Text);
+	void __stdcall ShowText(LPCWSTR Text);
 	UINT CreateNamedPipeConnection();
 	BOOL ConnectToNewClient(HANDLE hPipe, LPOVERLAPPED lpo);
 	VOID DisconnectAndReconnect(DWORD i);
@@ -78,8 +82,10 @@ public:
 	CNamedPipeServer	m_NPServer;
 	CNamedPipeThread*	m_NPThread;
 
+
 public:
 	afx_msg void OnBnClickedOk();
+	
 };
 
 UINT threadConnectNamedPipe(LPVOID pVar);

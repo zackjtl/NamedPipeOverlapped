@@ -3,19 +3,18 @@
 #include "stdafx.h"
 #include "IPCServer2.h"
 #include "NamedPipeThread.h"
-
-
 // CNamedPipeThread
 
 IMPLEMENT_DYNCREATE(CNamedPipeThread, CWinThread)
 
 CNamedPipeThread::CNamedPipeThread()
+	: LogCallBack(NULL), m_hWnd(NULL)
 {
 
 }
 
-CNamedPipeThread::CNamedPipeThread(CNamedPipeServer* Server)
-	: m_NPServer(Server)
+CNamedPipeThread::CNamedPipeThread(HWND hWND, CNamedPipeServer* Server)
+	:	m_hWnd(hWND), m_NPServer(Server), LogCallBack(NULL)
 {
 }
 
@@ -32,14 +31,25 @@ BOOL CNamedPipeThread::InitInstance()
 int CNamedPipeThread::Run()
 {
 	if (Function == 0) {
-		if (m_NPServer->Connect()) {
-
-		}
+		Result = m_NPServer->Connect();
 	}
 	else if (Function == 1) {
-		m_NPServer->WriteData(Data, Length);
+		Result = m_NPServer->WriteData(Data, Length);	
 	}
-	return 0;
+	else {
+		Result = 0;
+	}
+
+	PostMessage(m_hWnd, WM_THREAD_DONE, Function, Result);
+
+	return 1;
+}
+
+void CNamedPipeThread::ShowLog(LPCWSTR Text)
+{
+	if (LogCallBack != NULL) {
+		LogCallBack(Text);
+	}
 }
 
 int CNamedPipeThread::ExitInstance()

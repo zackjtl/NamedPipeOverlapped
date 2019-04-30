@@ -45,6 +45,9 @@
     <ClInclude Include="NamedPipeThread.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="UsrMsg.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IPCServer2.cpp">
