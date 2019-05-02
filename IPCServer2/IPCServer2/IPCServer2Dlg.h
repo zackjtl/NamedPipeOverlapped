@@ -3,6 +3,7 @@
 //
 #include "NamedPipeServer.h"
 #include "NamedPipeThread.h"
+#include "ClientThread.h"
 
 #pragma once
 
@@ -60,12 +61,10 @@ protected:
 
 public:
 	void __stdcall ShowText(LPCWSTR Text);
-	UINT CreateNamedPipeConnection();
-	BOOL ConnectToNewClient(HANDLE hPipe, LPOVERLAPPED lpo);
-	VOID DisconnectAndReconnect(DWORD i);
-	UINT HandleEvents();
 
 	void DumpBuffer(BYTE* Buffer, UINT Size);
+	void InitialGUIConfig();
+	void SaveGUIConfig();
 
 public:
 	HANDLE	m_hPipe;
@@ -73,7 +72,10 @@ public:
 
 	CEdit	m_LogEdit;
 	CEdit   m_ClientEdit;
+	CEdit   m_NPNameEdit;
 
+	CEdit   m_StationEdit;
+	CEdit   m_CamIPEdit[4];
 	CString m_Text;
 
 	PIPEINST m_Pipes[INSTANCES];
@@ -81,15 +83,11 @@ public:
 
 	CNamedPipeServer	m_NPServer;
 	CNamedPipeThread*	m_NPThread;
+	CClientThread*		m_ClientThread;
 
 
 public:
-	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedBtnbrowse();
+	afx_msg void OnBnClickedBtnopenclient();
+	afx_msg void OnBnClickedBtnsendconfig();
 };
-
-UINT threadConnectNamedPipe(LPVOID pVar);
-
-VOID GetAnswerToRequest(LPPIPEINST pipe);
-UINT threadHandleEvenbts(LPVOID pVar);
-UINT threadWaitForConnection(LPVOID pVar);

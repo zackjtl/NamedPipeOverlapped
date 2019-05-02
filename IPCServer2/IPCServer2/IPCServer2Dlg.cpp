@@ -10,6 +10,8 @@
 #include <tchar.h>
 #include <strsafe.h>
 #include "IniFile.h"
+#include "RecognitionConfig.h"
+#include "ipc_def.h"
 //---------------------------------------------------------------------------
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -61,16 +63,23 @@ void CIPCServer2Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT1, m_Text);
 	DDX_Control(pDX, IDC_EDIT1, m_LogEdit);
 	DDX_Control(pDX, IDC_EDIT2, m_ClientEdit);
+	DDX_Control(pDX, IDC_EDITSTATION, m_StationEdit);
+	DDX_Control(pDX, IDC_EDIT_CAMIP0, m_CamIPEdit[0]);
+	DDX_Control(pDX, IDC_EDIT_CAMIP1, m_CamIPEdit[1]);
+	DDX_Control(pDX, IDC_EDIT_CAMIP2, m_CamIPEdit[2]);
+	DDX_Control(pDX, IDC_EDIT_CAMIP3, m_CamIPEdit[3]);
+	DDX_Control(pDX, IDC_EDITNPNAME, m_NPNameEdit);
 }
 //---------------------------------------------------------------------------
 BEGIN_MESSAGE_MAP(CIPCServer2Dlg, CDialogEx)	
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDOK, OnBnClickedOk)
 	ON_MESSAGE(WM_THREAD_DONE, OnThreadDone)
 	ON_WM_CANCELMODE()
 	ON_BN_CLICKED(IDC_BTNBROWSE, &CIPCServer2Dlg::OnBnClickedBtnbrowse)
+	ON_BN_CLICKED(IDC_BTNOPENCLIENT, &CIPCServer2Dlg::OnBnClickedBtnopenclient)
+	ON_BN_CLICKED(IDC_BTNSENDCONFIG, &CIPCServer2Dlg::OnBnClickedBtnsendconfig)
 END_MESSAGE_MAP()
 //---------------------------------------------------------------------------
 // CIPCServer2Dlg 訊息處理常式
@@ -110,38 +119,108 @@ BOOL CIPCServer2Dlg::OnInitDialog()
 	
 	m_Connected = false;
 
-	m_NPServer.Create(L"\\\\.\\pipe\\mynamedpipe", 16384);
-	
-	m_NPThread = new CNamedPipeThread(m_hWnd, &m_NPServer);	
+	InitialGUIConfig();
+
+	CString npName;
+	m_NPNameEdit.GetWindowText(npName);
+
+	wstring wholeName = L"\\\\.\\pipe\\vns" + npName;
+
+	m_NPServer.Create(wholeName, 16384);
+
+	m_NPThread = new CNamedPipeThread(m_hWnd, &m_NPServer);
 	m_NPThread->m_bAutoDelete = false;
 	m_NPThread->Function = 0;
 	////m_NPThread->LogCallBack = ShowText;
 	m_NPThread->CreateThread();
-	
+
 	m_Connected = true;
+
+
+	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
+}
+//---------------------------------------------------------------------------
+void CIPCServer2Dlg::InitialGUIConfig()
+{
 
 	if (PathFileExists(L"ui.ini")) {
 		CIniFile iniFile(L"ui.ini");
 
 		wstring clientFile = iniFile.ReadString(L"Main", L"Client File", L"");
+		wstring npName = iniFile.ReadString(L"Main", L"NP Name", L"000");
+		int station = iniFile.ReadInteger(L"Main", L"Station", 0);
 		m_ClientEdit.SetWindowText(clientFile.c_str());
+		m_NPNameEdit.SetWindowText(npName.c_str());
+		m_StationEdit.SetWindowText(IntToWStr(station).c_str());
+
+		bool readIpFail = false;
+		vector<wstring> ips;
+
+		try {
+			iniFile.ReadStrings(L"Main", L"Camera IP", ips);
+
+			if (ips.size() != 4) {
+				readIpFail = true;
+			}
+			else {
+				for (int i = 0; i < 4; ++i) {
+					m_CamIPEdit[i].SetWindowText(ips[i].c_str());
+				}
+			}
+		}
+		catch (CError & Error) {
+			readIpFail = true;
+		}
+		if (readIpFail) {
+			for (int i = 0; i < 4; ++i) {
+				m_CamIPEdit[i].SetWindowText(L"000");
+			}
+		}
 	}
-	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
+	else {
+		m_NPNameEdit.SetWindowText(L"000");
+		m_StationEdit.SetWindowText(L"0");
+
+		for (int i = 0; i < 4; ++i) {
+			m_CamIPEdit[i].SetWindowText(L"000");
+		}
+	}
 }
 //---------------------------------------------------------------------------
-void CIPCServer2Dlg::OnCancel()
+void CIPCServer2Dlg::SaveGUIConfig()
 {
 	if (!PathFileExists(L"ui.ini")) {
 		CIniFile iniFile(L"ui.ini", FILE_CREATE_NEW);
 		iniFile.UpdateFile();
 	}
 	CString winText;
+	CString npName;
+	CString strStation;
+	CString strIp[4];
+	CString strIpWhole;
 	m_ClientEdit.GetWindowText(winText);
+	m_NPNameEdit.GetWindowText(npName);
+	m_StationEdit.GetWindowText(strStation);
+
+	for (int i = 0; i < 4; ++i) {
+		m_CamIPEdit[i].GetWindowText(strIp[i]);
+		strIpWhole += strIp[i];
+		if (i != 3) {
+			strIpWhole += L" ";
+		}
+	}
 
 	CIniFile iniFile(L"ui.ini");
 	iniFile.WriteString(L"Main", L"Client File", (LPCWSTR)winText);
+	iniFile.WriteString(L"Main", L"NP Name", (LPCWSTR)npName);
+	iniFile.WriteString(L"Main", L"Station", (LPCWSTR)strStation);
+	iniFile.WriteString(L"Main", L"Camera IP", (LPCWSTR)strIpWhole);
 	iniFile.UpdateFile();
-
+}
+//---------------------------------------------------------------------------
+void CIPCServer2Dlg::OnCancel()
+{
+	SaveGUIConfig();
 	CDialog::OnCancel();
 }
 //---------------------------------------------------------------------------
@@ -227,19 +306,45 @@ HCURSOR CIPCServer2Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 //---------------------------------------------------------------------------
-void CIPCServer2Dlg::OnBnClickedOk()
+void CIPCServer2Dlg::OnBnClickedBtnsendconfig()
 {
 	// TODO: 在此加入控制項告知處理常式程式碼
-	
+
 	////m_NPThread->Delete();
 	m_NPThread = new CNamedPipeThread(m_hWnd, &m_NPServer);
 
 	byte buffer[16384];
-	memset(buffer, 0x77, 32);
+
+	CString strStation;
+	CString strIp[4];
+
+	m_StationEdit.GetWindowText(strStation);
+	m_CamIPEdit[0].GetWindowText(strIp[0]);
+	m_CamIPEdit[1].GetWindowText(strIp[1]);
+	m_CamIPEdit[2].GetWindowText(strIp[2]);
+	m_CamIPEdit[3].GetWindowText(strIp[3]);
+
+	BYTE camIp[4] = { StrToInt(strIp[0]), StrToInt(strIp[1]), StrToInt(strIp[2]), StrToInt(strIp[3])};
+
+	CRecognitionConfig  config(StrToInt(strStation), camIp, L"StageConfig.ini");
+
+	THeader* pHeader = (THeader*)buffer;
+
+	pHeader->Opcode = OP_SEND_RECOGNITION_CONFIG;
+	pHeader->AttachmentSize = sizeof(TRecognitionConfig);
+	pHeader->P0 = 0;
+	pHeader->P1 = 0;
+
+	TRecognitionConfig* pRecogConfig = (TRecognitionConfig*)& buffer[sizeof(THeader)];
+
+	*pRecogConfig = config.Config;
+
+	int totalSize = sizeof(THeader) + sizeof(TRecognitionConfig);
+
 	m_NPThread->m_bAutoDelete = false;
 	m_NPThread->Function = NamedPipeWrite;
 	m_NPThread->Data = buffer;
-	m_NPThread->Length = 32;
+	m_NPThread->Length = totalSize;
 	m_NPThread->CreateThread();
 
 	////m_NPThread->Delete();
@@ -299,10 +404,26 @@ void CIPCServer2Dlg::OnBnClickedBtnbrowse()
 	// TODO: 在此加入控制項告知處理常式程式碼
 	const TCHAR szFilter[] = L"executable file (*.exe)|*.exe|All Files (*.*)|*.*||";
 	CFileDialog dlg(TRUE, L"exe", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
-	if (dlg.DoModal() == IDOK)
-	{
+	if (dlg.DoModal() == IDOK) {
 		CString sFilePath = dlg.GetPathName();
 		m_ClientEdit.SetWindowText(sFilePath);
 	}
+}
+//---------------------------------------------------------------------------
+void CIPCServer2Dlg::OnBnClickedBtnopenclient()
+{
+	// TODO: 在此加入控制項告知處理常式程式碼
+	CString clientPath;
+	CString parameters;
+	CString npName;
+	m_ClientEdit.GetWindowText(clientPath);
+	m_NPNameEdit.GetWindowText(npName);
+
+	parameters = npName;
+
+	m_ClientThread = new CClientThread(m_hWnd, clientPath, parameters, WindowNormal);
+
+	m_ClientThread->m_bAutoDelete = false;
+	m_ClientThread->CreateThread();
 }
 //---------------------------------------------------------------------------

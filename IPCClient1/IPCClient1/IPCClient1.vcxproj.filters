@@ -30,6 +30,36 @@
     <ClInclude Include="Resource.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="NamedPipe.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Bulk.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Error.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IniFile.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IoFile.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\randomc.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TypeConv.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TypeIterator.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Error\ErrorType.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Error\FileError.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IPCClient1.cpp">
@@ -39,6 +69,21 @@
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="NamedPipe.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\IniFile.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\IoFile.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\mersenne.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TypeConv.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>

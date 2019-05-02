@@ -31,7 +31,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -184,6 +184,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ClientThread.h" />
     <ClInclude Include="Common\Bulk.h" />
     <ClInclude Include="Common\Error.h" />
     <ClInclude Include="Common\IniFile.h" />
@@ -193,16 +194,19 @@
     <ClInclude Include="Common\TypeIterator.h" />
     <ClInclude Include="Error\ErrorType.h" />
     <ClInclude Include="Error\FileError.h" />
+    <ClInclude Include="ipc_def.h" />
     <ClInclude Include="NamedPipeServer.h" />
     <ClInclude Include="IPCServer2.h" />
     <ClInclude Include="IPCServer2Dlg.h" />
     <ClInclude Include="NamedPipeThread.h" />
+    <ClInclude Include="RecognitionConfig.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="UsrMsg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ClientThread.cpp" />
     <ClCompile Include="Common\IniFile.cpp" />
     <ClCompile Include="Common\IoFile.cpp" />
     <ClCompile Include="Common\mersenne.cpp" />
@@ -211,6 +215,7 @@
     <ClCompile Include="NamedPipeServer.cpp" />
     <ClCompile Include="IPCServer2.cpp" />
     <ClCompile Include="IPCServer2Dlg.cpp" />
+    <ClCompile Include="RecognitionConfig.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

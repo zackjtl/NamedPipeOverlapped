@@ -66,6 +66,15 @@
     <ClInclude Include="Common\TypeIterator.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="ClientThread.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="RecognitionConfig.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="ipc_def.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IPCServer2.cpp">
@@ -93,6 +102,12 @@
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="Common\TypeConv.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientThread.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="RecognitionConfig.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>

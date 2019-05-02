@@ -1,16 +1,14 @@
-﻿  stdafx.cpp
-  IPCClient1.cpp
-  IPCClient1Dlg.cpp
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(114): warning C4101: 'chBuf': 未參考的區域變數
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(116): warning C4101: 'dwMode': 未參考的區域變數
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(116): warning C4101: 'cbRead': 未參考的區域變數
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(116): warning C4101: 'cbToWrite': 未參考的區域變數
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(116): warning C4101: 'cbWritten': 未參考的區域變數
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(174): warning C4101: 'dwErr': 未參考的區域變數
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(174): warning C4101: 'i': 未參考的區域變數
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(174): warning C4101: 'dwWait': 未參考的區域變數
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(228): warning C4018: '<': signed/unsigned 不相符
+﻿  IniFile.cpp
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\Common\TypeConv.h(959): warning C4244: '引數': 將 'DWORD' 轉換為 'WORD'，由於類型不同，可能導致資料遺失
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\Common\randomc.h : warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+  IoFile.cpp
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\Common\TypeConv.h(959): warning C4244: '引數': 將 'DWORD' 轉換為 'WORD'，由於類型不同，可能導致資料遺失
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\Common\randomc.h : warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\Common\IoFile.cpp(332): warning C4244: '引數': 將 'UINT64' 轉換為 'const unsigned int'，由於類型不同，可能導致資料遺失
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\Common\IoFile.cpp(336): warning C4244: '引數': 將 'UINT64' 轉換為 'UINT'，由於類型不同，可能導致資料遺失
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\Common\IoFile.cpp(377): warning C4244: '引數': 將 'UINT64' 轉換為 'const unsigned int'，由於類型不同，可能導致資料遺失
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\Common\IoFile.cpp(381): warning C4244: '引數': 將 'UINT64' 轉換為 'UINT'，由於類型不同，可能導致資料遺失
+  NamedPipe.cpp
+C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\Common\TypeConv.h(959): warning C4244: '引數': 將 'DWORD' 轉換為 'WORD'，由於類型不同，可能導致資料遺失
   正在產生程式碼...
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(164): warning C4715: 'CIPCClient1Dlg::ConnectToNamedPipe': 不是所有控制路徑都傳回值
-C:\Projects\NamedPipeOverlapped\IPCClient1\IPCClient1\IPCClient1Dlg.cpp(218): warning C4715: 'CIPCClient1Dlg::WriteDataToPipe': 不是所有控制路徑都傳回值
   IPCClient1.vcxproj -> C:\Projects\NamedPipeOverlapped\IPCClient1\Debug\IPClient1.exe
