@@ -76,7 +76,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>Error;Common;.;$(IncludePath)</IncludePath>
+    <IncludePath>Error;Common;.;Controls;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -192,6 +192,8 @@
     <ClInclude Include="Common\randomc.h" />
     <ClInclude Include="Common\TypeConv.h" />
     <ClInclude Include="Common\TypeIterator.h" />
+    <ClInclude Include="Controls\InPlaceEdit.h" />
+    <ClInclude Include="Controls\ListCtrlEx.h" />
     <ClInclude Include="Error\ErrorType.h" />
     <ClInclude Include="Error\FileError.h" />
     <ClInclude Include="ipc_def.h" />
@@ -211,6 +213,8 @@
     <ClCompile Include="Common\IoFile.cpp" />
     <ClCompile Include="Common\mersenne.cpp" />
     <ClCompile Include="Common\TypeConv.cpp" />
+    <ClCompile Include="Controls\InPlaceEdit.cpp" />
+    <ClCompile Include="Controls\ListCtrlEx.cpp" />
     <ClCompile Include="NamedPipeThread.cpp" />
     <ClCompile Include="NamedPipeServer.cpp" />
     <ClCompile Include="IPCServer2.cpp" />

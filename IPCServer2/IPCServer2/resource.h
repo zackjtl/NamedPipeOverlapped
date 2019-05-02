@@ -17,8 +17,9 @@
 #define IDC_EDIT_CAMIP0                 1009
 #define IDC_EDIT_CAMIP1                 1010
 #define IDC_EDIT_CAMIP2                 1011
-#define IDC_EDITSTATION5                1012
 #define IDC_EDIT_CAMIP3                 1012
+#define IDC_LIST4                       1019
+#define IDC_LIST3                       1019
 
 // Next default values for new objects
 // 
@@ -26,7 +27,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1009
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

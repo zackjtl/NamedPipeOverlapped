@@ -75,6 +75,12 @@
     <ClInclude Include="ipc_def.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="Controls\ListCtrlEx.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\InPlaceEdit.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IPCServer2.cpp">
@@ -108,6 +114,12 @@
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="RecognitionConfig.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\ListCtrlEx.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\InPlaceEdit.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>

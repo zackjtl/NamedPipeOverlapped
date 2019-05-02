@@ -4,6 +4,7 @@
 #include "NamedPipeServer.h"
 #include "NamedPipeThread.h"
 #include "ClientThread.h"
+#include "ListCtrlEx.h"
 
 #pragma once
 
@@ -56,6 +57,10 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();	
 	afx_msg LRESULT OnThreadDone(WPARAM wParam, LPARAM lParam);
+	
+	void OnNMClickList(NMHDR* pNMHDR, LRESULT* pResult);
+	LRESULT OnNotifyDescriptionEdited(WPARAM wParam, LPARAM lParam);
+
 
 	DECLARE_MESSAGE_MAP()
 
@@ -63,8 +68,14 @@ public:
 	void __stdcall ShowText(LPCWSTR Text);
 
 	void DumpBuffer(BYTE* Buffer, UINT Size);
+
+protected:
+	void InitialListControl();
 	void InitialGUIConfig();
+	void InitCameraParamList(PVOID IniFile);
 	void SaveGUIConfig();
+
+	CPoint InterviewListCursorPosition() const;
 
 public:
 	HANDLE	m_hPipe;
@@ -78,13 +89,14 @@ public:
 	CEdit   m_CamIPEdit[4];
 	CString m_Text;
 
+	CListCtrlEx m_ListCtrl;
+
 	PIPEINST m_Pipes[INSTANCES];
 	HANDLE m_hEvents[INSTANCES];
 
 	CNamedPipeServer	m_NPServer;
 	CNamedPipeThread*	m_NPThread;
 	CClientThread*		m_ClientThread;
-
 
 public:
 	afx_msg void OnBnClickedBtnbrowse();

@@ -21,15 +21,29 @@ wstring CRecognitionConfig::ToString(int Indent)
 	wostringstream        text;
 	wstring               spaces(Indent, L' ');
 
-	text << spaces << L"Station  : " << Config.Station << L"\r\n";
-	text << spaces << L"Cam IP   : ";
-	
+	text << spaces << L"Station     : " << Config.Camera.StationNum << L"\r\n";
+	text << spaces << L"Cam IP      : ";
+
 	for (int i = 0; i < 4; ++i) {
-		text << Config.CameraIP[i];
+		text << Config.Camera.IP[i];
 		if (i != 3) {
 			text << L".";
 		}
 	}
+	text << L"\r\n";
+	text << spaces << L"Cam Params  : ";
+	for (int i = 0; i < MAX_CAMERA_CONFIG_PARAMETERS; ++i) {
+		if (i % 8 == 0) {
+			if (i != 0) {
+				text << L"\r\n";
+				text << spaces + L"              ";
+			}
+		}
+		wostringstream temp;
+		temp << std::hex << setw(8) << uppercase << setfill(L'0') << right << Config.Camera.P[i];
+		text << temp.str() << L" ";
+	}
+
 	text << L"\r\n";
 
 	for (int i = 0; i < MAX_STAGES; ++i) {
@@ -39,7 +53,7 @@ wstring CRecognitionConfig::ToString(int Indent)
 		text << spaces << L"  Attribute : " << Config.StageInfo[i].Attribute << L"\r\n";
 		text << spaces << L"  Parameters: ";
 
-		for (int j = 0; j < MAX_STAGE_INFO_PARAMETERS; ++j) {
+		for (int j = 0; j < MAX_STAGE_CONFIG_PARAMETERS; ++j) {
 			if (j % 8 == 0) {
 				if (j != 0) {
 					text << L"\r\n";

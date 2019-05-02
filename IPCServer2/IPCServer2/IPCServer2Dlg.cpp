@@ -69,6 +69,7 @@ void CIPCServer2Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_CAMIP2, m_CamIPEdit[2]);
 	DDX_Control(pDX, IDC_EDIT_CAMIP3, m_CamIPEdit[3]);
 	DDX_Control(pDX, IDC_EDITNPNAME, m_NPNameEdit);
+	DDX_Control(pDX, IDC_LIST3, m_ListCtrl);
 }
 //---------------------------------------------------------------------------
 BEGIN_MESSAGE_MAP(CIPCServer2Dlg, CDialogEx)	
@@ -80,6 +81,8 @@ BEGIN_MESSAGE_MAP(CIPCServer2Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTNBROWSE, &CIPCServer2Dlg::OnBnClickedBtnbrowse)
 	ON_BN_CLICKED(IDC_BTNOPENCLIENT, &CIPCServer2Dlg::OnBnClickedBtnopenclient)
 	ON_BN_CLICKED(IDC_BTNSENDCONFIG, &CIPCServer2Dlg::OnBnClickedBtnsendconfig)
+	ON_NOTIFY(NM_CLICK, IDC_LIST3, OnNMClickList)
+	ON_MESSAGE(WM_NOTIFY_DESCRIPTION_EDITED, OnNotifyDescriptionEdited)
 END_MESSAGE_MAP()
 //---------------------------------------------------------------------------
 // CIPCServer2Dlg 訊息處理常式
@@ -119,7 +122,9 @@ BOOL CIPCServer2Dlg::OnInitDialog()
 	
 	m_Connected = false;
 
+	InitialListControl();
 	InitialGUIConfig();
+	
 
 	CString npName;
 	m_NPNameEdit.GetWindowText(npName);
@@ -134,10 +139,32 @@ BOOL CIPCServer2Dlg::OnInitDialog()
 	////m_NPThread->LogCallBack = ShowText;
 	m_NPThread->CreateThread();
 
-	m_Connected = true;
-
+	m_Connected = true;	
+	
 
 	return TRUE;  // 傳回 TRUE，除非您對控制項設定焦點
+}
+//---------------------------------------------------------------------------
+void CIPCServer2Dlg::InitialListControl()
+{
+	LVCOLUMN lvColumn;
+	int nCol;
+
+	lvColumn.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+	lvColumn.fmt = LVCFMT_LEFT;
+	lvColumn.cx = 50;
+	lvColumn.pszText = L"No";
+	nCol = m_ListCtrl.InsertColumn(0, &lvColumn);
+
+	lvColumn.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+	lvColumn.fmt = LVCFMT_CENTER;
+	lvColumn.cx = 150;
+	lvColumn.pszText = L"Value";
+	nCol = m_ListCtrl.InsertColumn(1, &lvColumn);
+
+	////m_ListCtrl.SetColumnWidth(1, LVSCW_AUTOSIZE_USEHEADER);
+
+	m_ListCtrl.SetExtendedStyle(m_ListCtrl.GetExtendedStyle() | LVS_EX_FULLROWSELECT | LVS_EDITLABELS | LVS_EX_GRIDLINES);
 }
 //---------------------------------------------------------------------------
 void CIPCServer2Dlg::InitialGUIConfig()
@@ -176,6 +203,7 @@ void CIPCServer2Dlg::InitialGUIConfig()
 				m_CamIPEdit[i].SetWindowText(L"000");
 			}
 		}
+		InitCameraParamList(&iniFile);
 	}
 	else {
 		m_NPNameEdit.SetWindowText(L"000");
@@ -184,6 +212,32 @@ void CIPCServer2Dlg::InitialGUIConfig()
 		for (int i = 0; i < 4; ++i) {
 			m_CamIPEdit[i].SetWindowText(L"000");
 		}
+		InitCameraParamList(NULL);
+	}
+}
+//---------------------------------------------------------------------------
+void CIPCServer2Dlg::InitCameraParamList(PVOID IniFile)
+{
+	CIniFile* pIniFile = (CIniFile*)IniFile;
+	vector<wstring>  camParams;
+
+	bool fromIniFile = false;
+
+	if (pIniFile != NULL) {		
+		try {
+			pIniFile->ReadStrings(L"Main", L"Camera Params", camParams);
+
+			if (camParams.size() >= MAX_CAMERA_CONFIG_PARAMETERS) {
+				fromIniFile = true;
+			}
+		}
+		catch (CError & Error) {
+			;
+		}
+	}
+	for (int i = 0; i < MAX_CAMERA_CONFIG_PARAMETERS; ++i) {
+		int l_iItem = m_ListCtrl.InsertItem(LVIF_TEXT | LVIF_STATE, i, IntToWStr(i).c_str(), 0, LVIS_SELECTED, 0, 0);
+		m_ListCtrl.SetItemText(l_iItem, 1, fromIniFile ? camParams[i].c_str() : L"0");
 	}
 }
 //---------------------------------------------------------------------------
@@ -215,6 +269,15 @@ void CIPCServer2Dlg::SaveGUIConfig()
 	iniFile.WriteString(L"Main", L"NP Name", (LPCWSTR)npName);
 	iniFile.WriteString(L"Main", L"Station", (LPCWSTR)strStation);
 	iniFile.WriteString(L"Main", L"Camera IP", (LPCWSTR)strIpWhole);
+
+	wstring totalCamParam = L"";
+	for (int i = 0; i < MAX_CAMERA_CONFIG_PARAMETERS; ++i) {
+		CString temp = m_ListCtrl.GetItemText(i, 1);
+		if (i != 0) temp = L" " + temp;
+		totalCamParam += temp;
+	}
+	iniFile.WriteString(L"Main", L"Camera Params", totalCamParam);
+
 	iniFile.UpdateFile();
 }
 //---------------------------------------------------------------------------
@@ -306,6 +369,44 @@ HCURSOR CIPCServer2Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 //---------------------------------------------------------------------------
+LRESULT CIPCServer2Dlg::OnNotifyDescriptionEdited(WPARAM wParam, LPARAM lParam)
+{
+	// Get the changed Description field text via the callback
+	LV_DISPINFO* dispinfo = reinterpret_cast<LV_DISPINFO*>(lParam);
+
+	// Persist the selected attachment details upon updating its text
+	m_ListCtrl.SetItemText(dispinfo->item.iItem, dispinfo->item.iSubItem, dispinfo->item.pszText);
+
+	return 0;
+}
+//---------------------------------------------------------------------------
+void CIPCServer2Dlg::OnNMClickList(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	m_ListCtrl.SetClicked(true);
+	////m_fClickedList = true;
+	m_ListCtrl.OnLButtonDown(MK_LBUTTON, InterviewListCursorPosition());
+
+	*pResult = 0;
+}
+//---------------------------------------------------------------------------
+// Obtain cursor position and offset it to position it at interview list control
+CPoint CIPCServer2Dlg::InterviewListCursorPosition() const
+{
+	DWORD pos = GetMessagePos();
+	CPoint pt(LOWORD(pos), HIWORD(pos));
+	ScreenToClient(&pt);
+
+	CRect rect;
+	CWnd* pWnd = GetDlgItem(m_ListCtrl.GetDlgCtrlID());
+	pWnd->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+
+	pt.x -= rect.left;
+	pt.y -= rect.top;
+
+	return pt;
+}
+//---------------------------------------------------------------------------
 void CIPCServer2Dlg::OnBnClickedBtnsendconfig()
 {
 	// TODO: 在此加入控制項告知處理常式程式碼
@@ -325,8 +426,13 @@ void CIPCServer2Dlg::OnBnClickedBtnsendconfig()
 	m_CamIPEdit[3].GetWindowText(strIp[3]);
 
 	BYTE camIp[4] = { StrToInt(strIp[0]), StrToInt(strIp[1]), StrToInt(strIp[2]), StrToInt(strIp[3])};
+	UINT32 camParams[MAX_CAMERA_CONFIG_PARAMETERS];
 
-	CRecognitionConfig  config(StrToInt(strStation), camIp, L"StageConfig.ini");
+	for (int i = 0; i < MAX_CAMERA_CONFIG_PARAMETERS; ++i) {
+		camParams[i] = StrToInt(m_ListCtrl.GetItemText(i, 1));
+	}
+
+	CRecognitionConfig  config(StrToInt(strStation), camIp, camParams, L"StageConfig.ini");
 
 	THeader* pHeader = (THeader*)buffer;
 
